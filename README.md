@@ -1,3 +1,3 @@
 # MegaJato
 
-##intuide de praticar o framework django
+##intuito de praticar o framework django
