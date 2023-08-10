@@ -18,7 +18,7 @@ def clientes(request):
         placas = request.POST.getlist('placa')
         anos = request.POST.getlist('ano')
 
-            ########## Salvando os dados que foram pegados no banco de dados #############
+            ########## Salvando os dados que foram pegados no banco de dados, tabela cliente #############
 
         cliente = Cliente(
             nome = nome,
@@ -27,25 +27,34 @@ def clientes(request):
             cpf = cpf
         )
 
-        cliente.save() 
+        cliente.save()
+
+        ##################### validar cpf, após validação se tiver errado apaga apena o campo cpf #####################
+
+        cliente = Cliente.objects.filter(cpf=cpf)
+        if cliente.exists():
+            return render(request,'clientes.html', {'nome': nome,'sobrenome': sobrenome, 'email': email, 'carros':zip(carros, placas, anos)}) 
         
+       
+           
+           ############## validar email, após validação se tiver errado apaga apena o campo email ###################
+
+        if not re.fullmatch(re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'), email): 
+            return render(request,'clientes.html', {'nome': nome,'sobrenome': sobrenome, 'cpf': cpf, 'carros':zip(carros, placas, anos)})
+            ###return HttpResponse('Email inválido')  
+
+         ########## Salvando os dados que foram pegados no banco de dados, tabela carros #############
+
+         
         for carro, placa, ano in zip(carros, placas, anos):
             car = Carro(carro=carro, placa=placa, ano=ano, cliente=cliente)
             
             car.save()
 
-           ######### Se cliente já existir no banco retornar uma msg ####### 
-
-        if cliente.exists():
-            return render(request,'clientes.html', {'nome': nome,'sobrenome': sobrenome, 'email': email, 'carros':zip(carros, placas, anos)}) 
+           
+         
+    
         
-        if cliente.exists():
-            return render(request,'clientes.html', {'nome': nome,'sobrenome': sobrenome, 'cpf': cpf, 'carros':zip(carros, placas, anos)})
-
-            ############## validar email ###################
-
-        if not re.fullmatch(re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'), email):
-            return HttpResponse('Email inválido')  
 
         #Renderizar template
     return HttpResponse('teste')
